@@ -6,6 +6,7 @@ import {
   LeaderboardSort,
   SortDirection,
 } from '@sagebionetworks/bixarena/api-client';
+import { AnalyticsService } from '@sagebionetworks/bixarena/services';
 import { HeroComponent } from '@sagebionetworks/bixarena/ui';
 import { LeaderboardFacadeService } from './services/leaderboard.service';
 import {
@@ -52,6 +53,8 @@ const SORT_FIELD_MAP: Record<LeaderboardSortField, LeaderboardSort> = {
 })
 export class LeaderboardComponent {
   readonly facade = inject(LeaderboardFacadeService);
+  private readonly analytics = inject(AnalyticsService);
+  private hasTrackedView = false;
 
   readonly activeCategoryId = signal<string>(DEFAULT_CATEGORY_SLUG);
   readonly searchTerm = signal('');
@@ -98,7 +101,17 @@ export class LeaderboardComponent {
     void this.facade.loadLeaderboards();
 
     effect(() => {
-      void this.facade.load(this.activeCategoryId(), this.query());
+      const categoryId = this.activeCategoryId();
+      const q = this.query();
+      this.facade
+        .load(categoryId, q)
+        .then(() => {
+          if (!this.facade.error() && !this.hasTrackedView) {
+            this.hasTrackedView = true;
+            this.analytics.trackLeaderboardViewed(categoryId, this.facade.entryCount());
+          }
+        })
+        .catch(() => undefined);
     });
 
     inject(DestroyRef).onDestroy(() => {
@@ -121,6 +134,7 @@ export class LeaderboardComponent {
   }
 
   onCategoryChange(id: string): void {
+    this.analytics.trackLeaderboardFilterChanged('category', id);
     this.activeCategoryId.set(id);
     this.pageFirst.set(0);
   }
@@ -141,6 +155,7 @@ export class LeaderboardComponent {
   }
 
   onViewChange(next: LeaderboardView): void {
+    this.analytics.trackLeaderboardFilterChanged('view', next);
     this.view.set(next);
   }
 }

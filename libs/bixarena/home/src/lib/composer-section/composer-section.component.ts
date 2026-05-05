@@ -106,10 +106,11 @@ export class ComposerSectionComponent implements OnInit {
   }
 
   onPromptSubmit(prompt: string): void {
-    this.gate.savePendingPrompt(prompt);
+    this.gate.savePendingPrompt(prompt, null, 'home_composer');
     if (this.auth.isAuthenticated()) {
       void this.router.navigate(['/battle']);
     } else {
+      this.gate.setLoginEntryPoint('home_composer');
       this.gate.showLoginModal.set(true);
     }
   }

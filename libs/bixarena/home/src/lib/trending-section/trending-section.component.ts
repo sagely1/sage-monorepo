@@ -93,10 +93,11 @@ export class TrendingSectionComponent implements OnInit {
   }
 
   onCardClick(p: ExamplePrompt): void {
-    this.gate.savePendingPrompt(p.question, p.id);
+    this.gate.savePendingPrompt(p.question, p.id, 'home_trending_card');
     if (this.auth.isAuthenticated()) {
       void this.router.navigate(['/battle']);
     } else {
+      this.gate.setLoginEntryPoint('home_trending_card');
       this.gate.showLoginModal.set(true);
     }
   }
@@ -105,6 +106,7 @@ export class TrendingSectionComponent implements OnInit {
     if (this.auth.isAuthenticated()) {
       void this.router.navigate(['/battle']);
     } else {
+      this.gate.setLoginEntryPoint('home_ask_own_button');
       this.gate.showLoginModal.set(true);
     }
   }
