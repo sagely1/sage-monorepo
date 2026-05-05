@@ -23,21 +23,21 @@ async function setup() {
 }
 
 describe('Component: Comparison Tool - Filter List Item', () => {
-  it('should display text', async () => {
+  it('should display composed title and description', async () => {
     await setup();
 
     expect(screen.getByText(MOCK_TITLE, { exact: false })).toBeVisible();
     expect(screen.getByText(MOCK_DESCRIPTION, { exact: false })).toBeVisible();
   });
 
-  it('should remove filter item', async () => {
+  it('should remove filter item when the chip remove control is activated', async () => {
     const { user } = await setup();
 
     const item = screen.getByText(MOCK_TITLE, { exact: false });
     expect(item).toBeVisible();
 
-    const clearButton = screen.getByRole('button', { name: /clear/i });
-    await user.click(clearButton);
+    const removeButton = screen.getByRole('button');
+    await user.click(removeButton);
 
     expect(item).not.toBeVisible();
   });

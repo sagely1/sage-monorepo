@@ -1,0 +1,24 @@
+<p-chip
+  [removable]="removable()"
+  class="explorers-chiclet"
+  [style.--p-chip-background]="backgroundColor()"
+  [style.--p-chip-color]="textColor()"
+  [style.--p-chip-remove-icon-color]="closeIconColor()"
+  [style.--p-chip-remove-icon-size]="closeIconSizePx()"
+  (onRemove)="removed.emit()"
+>
+  <span class="chiclet-label unselectable-text" [style.font-size]="fontSize()">
+    @if (label()) {
+      <span [innerHTML]="label()"></span>
+    }
+    <ng-content />
+  </span>
+  <ng-template pTemplate="removeicon">
+    <explorers-svg-icon
+      imagePath="explorers-assets/icons/close.svg"
+      [width]="closeIconSize()"
+      [height]="closeIconSize()"
+      [enableHoverEffects]="false"
+    />
+  </ng-template>
+</p-chip>

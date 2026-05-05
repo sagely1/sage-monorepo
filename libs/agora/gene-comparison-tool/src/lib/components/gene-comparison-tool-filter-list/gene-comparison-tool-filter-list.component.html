@@ -14,21 +14,19 @@
         </button>
       </div>
       <div>
-        <agora-gene-comparison-tool-filter-list-item
-          [item]=""
+        <explorers-comparison-tool-filter-list-item
           [description]="'Significance &leq; ' + significanceThreshold"
-          [isVisible]="significanceThresholdActive"
+          [(isVisible)]="significanceThresholdActive"
           (clearEvent)="removeSignificanceThresholdFilter()"
-        ></agora-gene-comparison-tool-filter-list-item>
+        ></explorers-comparison-tool-filter-list-item>
         @for (filter of filters; track filter; let i = $index) {
           @for (option of filter.options; track option; let j = $index) {
-            <agora-gene-comparison-tool-filter-list-item
-              [item]="option"
+            <explorers-comparison-tool-filter-list-item
               [title]="filter.short || ''"
               [description]="option.label"
               [isVisible]="option.selected || false"
               (clearEvent)="clearSelectedFilters(option)"
-            ></agora-gene-comparison-tool-filter-list-item>
+            ></explorers-comparison-tool-filter-list-item>
           }
         }
       </div>

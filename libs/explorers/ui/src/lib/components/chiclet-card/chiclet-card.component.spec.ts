@@ -1,6 +1,8 @@
-import { render, screen } from '@testing-library/angular';
-import { ChicletCardComponent } from './chiclet-card.component';
+import { By } from '@angular/platform-browser';
 import { Chiclet } from '@sagebionetworks/explorers/models';
+import { render, screen } from '@testing-library/angular';
+import { ChicletComponent } from '../chiclet/chiclet.component';
+import { ChicletCardComponent } from './chiclet-card.component';
 
 describe('ChicletCardComponent', () => {
   const chiclets: Chiclet[] = [
@@ -25,12 +27,18 @@ describe('ChicletCardComponent', () => {
     expect(screen.getByText('rs1801133')).toBeInTheDocument();
   });
 
-  it('should apply the background color inline style', async () => {
-    await render(ChicletCardComponent, {
+  it('should forward label and color from each Chiclet model into ChicletComponent inputs', async () => {
+    const { fixture } = await render(ChicletCardComponent, {
       inputs: { title: 'Example searches', chiclets },
     });
-    expect(screen.getByText('PAK1')).toHaveStyle('background-color: #4caf50');
-    expect(screen.getByText('chr1:109.8Mb')).toHaveStyle('background-color: #3f51b5');
-    expect(screen.getByText('rs1801133')).toHaveStyle('background-color: #009688');
+    const instances = fixture.debugElement
+      .queryAll(By.directive(ChicletComponent))
+      .map((debugEl) => debugEl.componentInstance as ChicletComponent);
+    expect(instances).toHaveLength(chiclets.length);
+    instances.forEach((instance, i) => {
+      expect(instance.label()).toBe(chiclets[i].label);
+      expect(instance.backgroundColor()).toBe(chiclets[i].color);
+      expect(instance.textColor()).toBe('white');
+    });
   });
 });

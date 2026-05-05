@@ -2,7 +2,11 @@
   <h2>{{ title() }}</h2>
   <div class="chiclets">
     @for (chiclet of chiclets(); track chiclet.label) {
-      <span class="chiclet" [style.background-color]="chiclet.color">{{ chiclet.label }}</span>
+      <explorers-chiclet
+        [label]="chiclet.label"
+        [backgroundColor]="chiclet.color"
+        textColor="white"
+      />
     }
   </div>
 </div>
