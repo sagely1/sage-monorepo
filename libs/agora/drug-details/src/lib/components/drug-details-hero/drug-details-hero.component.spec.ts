@@ -43,7 +43,13 @@ describe('DrugDetailsHeroComponent', () => {
       expect(screen.getByText(/Nominated Combination Therapy with/)).toBeInTheDocument();
     });
 
-    it('should display a combination badge per constituent for multi-drug combinations', async () => {
+    it('should separate multiple badges with a line break', async () => {
+      await setup();
+      const badgeParagraph = screen.getByText(/Nominated Drug/).closest('p');
+      expect(badgeParagraph?.querySelector('br')).toBeInTheDocument();
+    });
+
+    it('should combine two partners into a single badge with an ampersand', async () => {
       await setup({
         drug_nominations: [
           {
@@ -55,10 +61,45 @@ describe('DrugDetailsHeroComponent', () => {
           },
         ],
       });
+      const badge = screen.getByText(/Nominated Combination Therapy with/);
+      expect(badge).toHaveTextContent('Nominated Combination Therapy with Irinotecan & Donepezil');
+
       const irinotecanLink = screen.getByRole('link', { name: /Irinotecan/ });
       expect(irinotecanLink).toHaveAttribute('href', '/drugs/CHEMBL481');
       const donepezilLink = screen.getByRole('link', { name: /Donepezil/ });
       expect(donepezilLink).toHaveAttribute('href', '/drugs/CHEMBL502');
+    });
+
+    it('should combine three or more partners with commas and a trailing ampersand', async () => {
+      await setup({
+        drug_nominations: [
+          {
+            ...drugMock.drug_nominations[1],
+            combined_with: [
+              { common_name: 'Irinotecan', chembl_id: 'CHEMBL1' },
+              { common_name: 'Pharmatanium', chembl_id: 'CHEMBL2' },
+              { common_name: 'Unpharmatanium', chembl_id: 'CHEMBL3' },
+            ],
+          },
+        ],
+      });
+      const badge = screen.getByText(/Nominated Combination Therapy with/);
+      expect(badge).toHaveTextContent(
+        'Nominated Combination Therapy with Irinotecan, Pharmatanium & Unpharmatanium',
+      );
+
+      expect(screen.getByRole('link', { name: 'Irinotecan' })).toHaveAttribute(
+        'href',
+        '/drugs/CHEMBL1',
+      );
+      expect(screen.getByRole('link', { name: 'Pharmatanium' })).toHaveAttribute(
+        'href',
+        '/drugs/CHEMBL2',
+      );
+      expect(screen.getByRole('link', { name: 'Unpharmatanium' })).toHaveAttribute(
+        'href',
+        '/drugs/CHEMBL3',
+      );
     });
   });
 

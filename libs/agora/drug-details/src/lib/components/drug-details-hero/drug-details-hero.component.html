@@ -2,13 +2,16 @@
   <section>
     <h1>{{ drug().common_name }}</h1>
     <p>
-      @for (badge of badges(); track badge.label; let last = $last) {
-        @if (badge.link) {
-          {{ badge.label }}
-          <a [routerLink]="badge.link">{{ badge.linkText }}</a
-          >{{ last ? '' : ',' }}
-        } @else {
-          {{ badge.label }}{{ last ? '' : ',' }}
+      @for (badge of badges(); track $index; let last = $last) {
+        {{ badge.label }}
+        @if (badge.partners) {
+          @for (partner of badge.partners; track partner.link) {
+            <a [routerLink]="partner.link">{{ partner.linkText }}</a
+            >{{ partner.separator }}
+          }
+        }
+        @if (!last) {
+          <br />
         }
       }
     </p>
