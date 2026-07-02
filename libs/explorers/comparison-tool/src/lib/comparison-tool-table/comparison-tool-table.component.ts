@@ -95,7 +95,17 @@ export class ComparisonToolTableComponent implements AfterViewInit {
       // so wait for fonts to be ready before calculating column widths
       // to prevent incorrect measurements
       document.fonts.ready.then(() => {
+        // Measurement briefly pulls cells out of flow, collapsing the table so the
+        // browser clamps the scroll container's scrollLeft. Save and restore it so
+        // sorting/data changes don't reset the user's horizontal scroll position.
+        const scrollContainer = this.tableElement()?.nativeElement.closest(
+          '.comparison-tool-body',
+        ) as HTMLElement | null;
+        const savedScrollLeft = scrollContainer?.scrollLeft ?? 0;
         this.columnWidths.set(this.calculateNonPrimaryColumnWidths());
+        if (scrollContainer) {
+          scrollContainer.scrollLeft = savedScrollLeft;
+        }
       });
     }
   }
