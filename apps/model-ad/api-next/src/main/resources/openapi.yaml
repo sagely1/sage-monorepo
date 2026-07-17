@@ -1757,7 +1757,6 @@ components:
         - data
         - evidence_type
         - name
-        - tissue
         - units
         - y_axis_max
       type: object
