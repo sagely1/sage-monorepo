@@ -10,10 +10,15 @@ import { ModelData, Sex } from '@sagebionetworks/model-ad/api-client';
 import { mouseModelMock } from '@sagebionetworks/model-ad/testing';
 import { BoxplotsGridComponent } from '@sagebionetworks/model-ad/ui';
 import { render, screen, waitFor } from '@testing-library/angular';
+import userEvent from '@testing-library/user-event';
 import {
   FilterConfig,
   ModelDetailsBoxplotsSelectorComponent,
 } from './model-details-boxplots-selector.component';
+
+// Longer default timeout for all tests; PrimeNG rendering can be slow in CI
+const TEST_TIMEOUT_MS = 15000;
+jest.setTimeout(TEST_TIMEOUT_MS);
 
 const mockTitle = 'Pathology';
 const mockDescription = 'Test description';
@@ -54,12 +59,13 @@ class TestHostComponent {
 }
 
 async function setupHost(overrides: Partial<TestHostComponent> = {}) {
+  const user = userEvent.setup();
   const { fixture } = await render(TestHostComponent, {
     imports: [MockWikiComponent],
     componentInputs: overrides,
     providers: [provideHttpClient(), { provide: SvgIconService, useClass: SvgIconServiceStub }],
   });
-  return { fixture, host: fixture.componentInstance };
+  return { fixture, host: fixture.componentInstance, user };
 }
 
 describe('ModelDetailsBoxplotsSelectorComponent', () => {
@@ -96,7 +102,7 @@ describe('ModelDetailsBoxplotsSelectorComponent', () => {
       { timeout: 10000 },
     );
     expect(tissueFilter).toBeVisible();
-  }, 15000);
+  });
 
   it('should convert label to anchor id', async () => {
     const { fixture } = await setupHost();
@@ -294,9 +300,62 @@ describe('ModelDetailsBoxplotsSelectorComponent', () => {
   });
 
   it('should populate TOC from anchorDataField', async () => {
-    await setupHost();
+    const { user } = await setupHost();
+
+    const expandButton = screen.getByRole('button', { name: 'Expand' });
+    await user.click(expandButton);
+
     await waitFor(() => {
       expect(screen.getAllByRole('listitem').length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('collapsible TOC', () => {
+    it('should start collapsed with expand button and no TOC items visible', async () => {
+      await setupHost();
+
+      const expandButton = screen.getByRole('button', { name: 'Expand' });
+      expect(expandButton).toBeVisible();
+
+      const tocList = screen.queryByRole('list');
+      expect(tocList).not.toBeInTheDocument();
+    });
+
+    it('should show TOC items when expand button is clicked', async () => {
+      const { user } = await setupHost();
+
+      const expandButton = screen.getByRole('button', { name: 'Expand' });
+      await user.click(expandButton);
+
+      await waitFor(() => {
+        const collapseButton = screen.getByRole('button', { name: 'Collapse' });
+        expect(collapseButton).toBeVisible();
+
+        const tocList = screen.getByRole('list');
+        expect(tocList).toBeVisible();
+      });
+    });
+
+    it('should hide TOC items when collapse button is clicked', async () => {
+      const { user } = await setupHost();
+
+      const expandButton = screen.getByRole('button', { name: 'Expand' });
+      await user.click(expandButton);
+
+      await waitFor(() => {
+        expect(screen.getByRole('list')).toBeVisible();
+      });
+
+      const collapseButton = screen.getByRole('button', { name: 'Collapse' });
+      await user.click(collapseButton);
+
+      await waitFor(() => {
+        const expandButtonAgain = screen.getByRole('button', { name: 'Expand' });
+        expect(expandButtonAgain).toBeVisible();
+
+        const tocList = screen.queryByRole('list');
+        expect(tocList).not.toBeInTheDocument();
+      });
     });
   });
 });
