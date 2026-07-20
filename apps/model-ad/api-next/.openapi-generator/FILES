@@ -47,7 +47,6 @@ src/main/java/org/sagebionetworks/model/ad/api/next/model/dto/MouseModelOverview
 src/main/java/org/sagebionetworks/model/ad/api/next/model/dto/MouseModelOverviewsPageDto.java
 src/main/java/org/sagebionetworks/model/ad/api/next/model/dto/NamedLinkDto.java
 src/main/java/org/sagebionetworks/model/ad/api/next/model/dto/PageMetadataDto.java
-src/main/java/org/sagebionetworks/model/ad/api/next/model/dto/SexCohortDto.java
 src/main/java/org/sagebionetworks/model/ad/api/next/model/dto/SexDto.java
 src/main/java/org/sagebionetworks/model/ad/api/next/model/dto/TranscriptomicsDto.java
 src/main/java/org/sagebionetworks/model/ad/api/next/model/dto/TranscriptomicsIndividualDto.java
