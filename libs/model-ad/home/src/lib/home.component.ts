@@ -1,5 +1,5 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   HomeCardComponent,
@@ -27,10 +27,22 @@ export class HomeComponent {
   // Must match $home-mobile-md-max-width in home.component.scss
   private readonly MOBILE_BREAKPOINT = 850;
 
-  readonly backgroundImageDesktop = 'model-ad-assets/images/home-arc-bg.svg';
-  readonly backgroundImageMobile = 'model-ad-assets/images/home-arc-bg-mobile.svg';
+  // The hero arc is split into an upper decorative arc (anchored to the top of the page) and a
+  // lower arc that sits behind the stats, tracking them regardless of the content height above
+  // (which changes with the selected model organism). Each breakpoint uses its own artwork.
+  private readonly upperArcImageDesktop = 'model-ad-assets/images/home-arc-bg-upper.svg';
+  private readonly upperArcImageMobile = 'model-ad-assets/images/home-arc-bg-upper-mobile.svg';
+  private readonly lowerArcImageDesktop = 'model-ad-assets/images/home-arc-bg-lower.svg';
+  private readonly lowerArcImageMobile = 'model-ad-assets/images/home-arc-bg-lower-mobile.svg';
 
-  readonly backgroundImage = signal(this.backgroundImageDesktop);
+  private readonly isMobile = signal(false);
+
+  readonly upperArcImage = computed(() =>
+    this.isMobile() ? this.upperArcImageMobile : this.upperArcImageDesktop,
+  );
+  readonly lowerArcImage = computed(() =>
+    this.isMobile() ? this.lowerArcImageMobile : this.lowerArcImageDesktop,
+  );
 
   readonly selectedModelOrganism = signal<ModelOrganism>('mouse');
 
@@ -76,10 +88,6 @@ export class HomeComponent {
     this.breakpointObserver
       .observe([`(width < ${this.MOBILE_BREAKPOINT}px)`])
       .pipe(takeUntilDestroyed())
-      .subscribe((result) => {
-        this.backgroundImage.set(
-          result.matches ? this.backgroundImageMobile : this.backgroundImageDesktop,
-        );
-      });
+      .subscribe((result) => this.isMobile.set(result.matches));
   }
 }

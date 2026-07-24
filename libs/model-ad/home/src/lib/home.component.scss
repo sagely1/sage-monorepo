@@ -3,7 +3,6 @@
 
 $home-mobile-md-max-width: 850px;
 $home-mobile-sm-max-width: 535px;
-$home-mobile-xs-max-width: 385px;
 $models-panel-padding: 59px;
 
 #home-page {
@@ -87,11 +86,32 @@ explorers-home-card {
 }
 
 .stats-container {
+  position: relative;
+  z-index: 0;
   display: flex;
   align-items: center;
   gap: 20px;
   justify-content: center;
-  padding: 10px 0;
+  padding: 70px 0 40px;
+
+  // Full-bleed lower arc that sits behind the stats. Anchored to this element (not a fixed
+  // page offset) so it tracks the stats regardless of the content height above. The arc is a
+  // thin curved ribbon with transparent space below it, so the layer is taller than the stats
+  // row to reveal the ribbon's full curved bottom (it dips lower toward the viewport edges, so
+  // the height scales with width). The overflow is transparent and sits behind later sections.
+  .stats-arc-bg {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 100vw;
+    height: max(450px, 45vw);
+    transform: translateX(-50%);
+    z-index: -1;
+    background-repeat: no-repeat;
+    background-position: center top;
+    background-size: auto;
+    pointer-events: none;
+  }
 
   .stat {
     width: 200px;
@@ -132,6 +152,18 @@ explorers-home-card {
 }
 
 @media (width < $home-mobile-md-max-width) {
+  // Mobile uses its own 6-loop arc split (home-arc-bg-upper-mobile / -lower-mobile). The upper arc
+  // is scaled up (background-size wider than the 1280px artwork) so only a small, gentle slice of
+  // each loop is shown -- at intrinsic size the visible curve is too steep on a phone. It is
+  // anchored with a fixed offset (not `center`) so the framing is identical at every viewport
+  // width -- centering slides the crop window as the width changes, which cut off the second arc's
+  // left edge at some widths. The vertical offset drops the first band to the first card (the
+  // model-organism toggle), not behind the heading, per the Figma design.
+  #home-page {
+    background-size: 1800px auto;
+    background-position: -600px 0;
+  }
+
   .section {
     padding: 70px clamp(30px, 5vw, 160px);
   }
@@ -176,7 +208,7 @@ explorers-home-card {
   }
 
   .stats-container {
-    padding: 60px 0 10px;
+    padding: 60px 0 40px;
 
     .stat {
       .stat-label {
@@ -211,18 +243,5 @@ explorers-home-card {
 
   .card-container {
     gap: clamp(2px, 3vw, 25px);
-  }
-}
-
-@media (width < $home-mobile-xs-max-width) {
-  .stats-container {
-    padding-top: 150px;
-
-    .stat {
-      .stat-label,
-      .stat-value {
-        color: var(--color-primary);
-      }
-    }
   }
 }

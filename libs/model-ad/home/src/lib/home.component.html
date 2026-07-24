@@ -1,4 +1,4 @@
-<div id="home-page" [style.background-image]="'url(' + backgroundImage() + ')'">
+<div id="home-page" [style.background-image]="'url(' + upperArcImage() + ')'">
   <div class="section">
     <div class="content">
       <div class="text-marquee">
@@ -80,6 +80,7 @@
         }
       </div>
       <div class="stats-container">
+        <div class="stats-arc-bg" [style.background-image]="'url(' + lowerArcImage() + ')'"></div>
         @for (stat of stats; track stat) {
           <div class="stat">
             <h3 class="stat-label">{{ stat.label }}</h3>
